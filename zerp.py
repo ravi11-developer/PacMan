@@ -1,3 +1,4 @@
+from pygame.locals import *
 import pygame
 pygame.init()
 running=True
