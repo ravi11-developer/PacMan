@@ -5,7 +5,7 @@ import numpy as np
 class Node(object):
     def __init__(self,x,y):
         self.position=Vector2(x,y)
-        self.neighbors={UP:None,DOWN:None,LEFT:None,RIGHT:None}
+        self.neighbors={UP:None,DOWN:None,LEFT:None,RIGHT:None,PORTAL:None}
     def render(self,screen):
         for n in self.neighbors.keys():
             if self.neighbors[n] is not None:
@@ -26,7 +26,9 @@ class NodeGroup(object):
         self.connectHorizontally(data)
         self.connectVertically(data)
     def readMazeFile(self,testFile):
-        return np.loadtxt(testFile)
+        with open(testFile, 'r') as f:
+            lines = [line.strip().split() for line in f.readlines()]
+        return np.array(lines, dtype=str)
     
     def createNodeTable(self, data, xoffset=0, yoffset=0):
         for row in list(range(data.shape[0])):
@@ -85,13 +87,12 @@ class NodeGroup(object):
     def render(self, screen):
         for node in self.nodeLUT.values():
             node.render(screen)
-
-if __name__ == "__main__":
-    # Read and print the maze file directly
-    maze_data = np.loadtxt("Basic_Movement/mazetest.txt", dtype='<U1')
     
-    print("Maze layout:")
-    print("=" * 30)
-    for row in maze_data:
-        print(' '.join(row))
-    print("=" * 30)
+    def setPortalPair(self, pair1, pair2):
+        # * unpack the key mean if pair is (2,3) is use give without unpacking it will be one agument but with star is is 2 
+        key1 = self.constructKey(*pair1)
+        key2 = self.constructKey(*pair2)
+        if key1 in self.nodeLUT.keys() and key2 in self.nodeLUT.keys():
+            self.nodeLUT[key1].neighbors[PORTAL] = self.nodeLUT[key2]
+            self.nodeLUT[key2].neighbors[PORTAL] = self.nodeLUT[key1]
+
