@@ -25,7 +25,7 @@ class GameController(object):
         self.nodes.setPortalPair((0,17),(27,17))
         self.pacman=Pacman(self.nodes.getStartTempNode())
         self.pellets=PelletGroup("Basic_Movement/maze1.txt")
-        self.ghost=Ghost(self.nodes.getStartTempNode())
+        self.ghost=Ghost(self.nodes.getStartTempNode(),self.pacman)
 
     def checkPelletEvents(self):
         pellet=self.pacman.eatPellets(self.pellets.pelletList)
