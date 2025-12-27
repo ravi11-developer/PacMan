@@ -23,15 +23,21 @@ class GameController(object):
         self.setBackground()
         self.nodes=NodeGroup("Basic_Movement/maze1.txt")
         self.nodes.setPortalPair((0,17),(27,17))
+        homekey=self.nodes.createHomeNodes(11.5,14)
+        self.nodes.connectHomeNode(homekey,(12,14),LEFT)
+        self.nodes.connectHomeNode(homekey,(15,14),RIGHT)
         self.pacman=Pacman(self.nodes.getStartTempNode())
         self.pellets=PelletGroup("Basic_Movement/maze1.txt")
         self.ghost=Ghost(self.nodes.getStartTempNode(),self.pacman)
+        self.ghost.setSpawnNode(self.nodes.getNodeFromTiles(2+11.5,3+14))
 
     def checkPelletEvents(self):
         pellet=self.pacman.eatPellets(self.pellets.pelletList)
         if pellet:
             self.pellets.numEaten+=1
             self.pellets.pelletList.remove(pellet)
+            if pellet.name==POWERPELLET:
+                self.ghost.startFreight()
 
     def update(self):
         dt = self.clock.tick(30) / 1000.0
@@ -39,8 +45,13 @@ class GameController(object):
         self.pellets.update(dt)
         self.ghost.update(dt)
         self.checkPelletEvents()
+        self.checkGhostEvents()
         self.checkEvents()
         self.render()
+    def checkGhostEvents(self):
+        if self.pacman.collideGhost(self.ghost):
+            if self.ghost.mode.current is FREIGHT:
+               self.ghost.startSpawn()
 
     def checkEvents(self):
         for event in pygame.event.get():

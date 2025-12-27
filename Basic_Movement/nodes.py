@@ -25,6 +25,7 @@ class NodeGroup(object):
         self.createNodeTable(data)
         self.connectHorizontally(data)
         self.connectVertically(data)
+        self.homekey=None
     def readMazeFile(self,testFile):
         with open(testFile, 'r') as f:
             lines = [line.strip().split() for line in f.readlines()]
@@ -96,3 +97,19 @@ class NodeGroup(object):
             self.nodeLUT[key1].neighbors[PORTAL] = self.nodeLUT[key2]
             self.nodeLUT[key2].neighbors[PORTAL] = self.nodeLUT[key1]
 
+    def createHomeNodes(self,xoffset,yoffset):
+        homedata = np.array([['X','X','+','X','X'],
+                             ['X','X','.','X','X'],
+                             ['+','X','.','X','+'],
+                             ['+','.','+','.','+'],
+                             ['+','X','X','X','+']])
+        self.createNodeTable(homedata,xoffset,yoffset)
+        self.connectHorizontally(homedata,xoffset,yoffset)
+        self.connectVertically(homedata,xoffset,yoffset)
+        self.homekey=self.constructKey(xoffset+2,yoffset)
+        return self.homekey
+    
+    def connectHomeNode(self,homeKey,otherkey,direction):
+        key=self.constructKey(*otherkey)
+        self.nodeLUT[homeKey].neighbors[direction]=self.nodeLUT[key]
+        self.nodeLUT[key].neighbors[direction*-1]=self.nodeLUT[homeKey]
